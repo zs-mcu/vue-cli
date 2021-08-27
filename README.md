@@ -1,3 +1,5 @@
+
+
 # vue-cli
 
 vue-cli 是 Vue.js 开发的标准工具。它简化了程序员基于 webpack 创建工程化的 Vue 项目的过程。
@@ -141,3 +143,295 @@ export default {
 }
 ```
 
+
+
+
+
+
+
+![image-20210827101137351](README.assets/image-20210827101137351.png)
+
+
+
+![image-20210827101151314](README.assets/image-20210827101151314.png)
+
+
+
+```vue
+<template>
+  <div class="app-container">
+    <h1>App 根组件</h1>
+    <hr />
+
+  
+    <div class="box">
+      <!-- 渲染 Left 组件和 Right 组件 -->
+      <Left></Left>
+      <Right></Right>
+      
+    </div>
+  </div>
+</template>
+
+<script>
+import Right from '@/components/Right.vue'
+import Left from '@/components/Left.vue'
+
+export default {
+  components: {
+    //"Left" : Left
+    Left,
+    Right
+  }
+}
+</script>
+```
+
+
+
+注意： 
+
+配置路径时提示问题
+
+可以安装Path Autocomplete
+
+并在配置文件中添加配置
+
+```json
+{
+    //导入文件时是否携带文件的扩展名
+    "path-autocomplete.extensionOnImport": true,
+    //配置@ 的路径提示
+    "path-autocomplete.pathMappings": {
+        "@": "${folder}/src"
+    },
+```
+
+也有人说可以用 path intelligence
+
+
+
+标签自动闭合问题
+
+auto close tag插件
+
+
+
+
+
+![image-20210827101227507](README.assets/image-20210827101227507.png)
+
+
+
+![image-20210827102440909](README.assets/image-20210827102440909.png)
+
+
+
+
+
+
+
+props
+
+案例准备
+
+```vue
+<template>
+    <div>
+        <h5>Count 组件</h5>
+        <p>count 的值是 ： {{ count }}</p>
+        <button @click = "add">+1</button>
+    </div>
+</template>
+
+<script>
+export default {
+    data(){
+        return {
+            count: 0
+        }
+    },
+    methods: {
+        add() {
+            this.count += 1
+        }
+    }
+}
+</script>
+```
+
+当方法中只有一行的时候，可以简写`<button @click = "count += 1">+1</button>`
+
+![image-20210827110328301](README.assets/image-20210827110328301.png)
+
+count组件
+
+```vue
+<template>
+    <div>
+        <h5>Count 组件</h5>
+        <p>count 的值是 ： {{ init }}</p>
+        <button @click = "count += 1">+1</button>
+    </div>
+</template>
+
+<script>
+export default {
+    //props 是自定义属性，允许使用者通过自定义属性，为当前组件指定初始值
+    props:["init"],
+    data(){
+        return {
+            count: 0
+        }
+    }
+}
+</script>
+```
+
+Left.vue
+
+`<MyCount init="9"></MyCount>`
+
+Right.vue
+
+`<MyCount init="6"></MyCount>`
+
+注意： 使用`v-bind:init='6'`时，由于`v-bind`中的是js代码，所以传递过去的是数字，否则传递过去的是字符串
+
+
+
+
+
+![image-20210827111857632](README.assets/image-20210827111857632.png)
+
+
+
+![image-20210827112653203](README.assets/image-20210827112653203.png)
+
+
+
+![image-20210827113204239](README.assets/image-20210827113204239.png)
+
+
+
+![image-20210827113615020](README.assets/image-20210827113615020.png)
+
+
+
+![image-20210827114147104](README.assets/image-20210827114147104.png)
+
+
+
+![image-20210827114542715](README.assets/image-20210827114542715.png)
+
+![image-20210827114840944](README.assets/image-20210827114840944.png)
+
+
+
+#### 父组件中改造子组件的样式时，当使用第三方组件库时，有需要修改组件样式的时候
+
+![image-20210827114908621](README.assets/image-20210827114908621.png)
+
+
+
+## 组件生命周期
+
+![image-20210827135015984](README.assets/image-20210827135015984.png)
+
+可以参考 vue 官方文档给出的“生命周期图示”，进一步理解组件生命周期执行的过程：
+
+https://cn.vuejs.org/v2/guide/instance.html#生命周期图示
+
+
+
+![lifecycle](../../../../../../miyufeng/Downloads/day4/讲义/lifecycle.png)
+
+
+
+created
+
+```vue
+<template>
+  <div class="test-container">
+    <h3>Test.vue 组件 --- {{ books.length }}</h3>
+  </div>
+</template>
+
+<script>
+export default {
+  props: ["info"],
+  data() {
+    return {
+      message: "hello vue.js",
+      books: [],
+    };
+  },
+  methods: {
+    show() {
+      console.log("show被使用了");
+    },
+    initBookList() {
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("load", () => {
+        console.log("this is resoonse string" + xhr.responseText); //接收到的是字符串
+        const result = JSON.parse(xhr.responseText);
+        console.log(result);
+        this.books = result.data;
+      });
+      xhr.open("GET", "http://www.liulongbin.top:3006/api/getbooks");
+      xhr.send();
+    },
+  },
+
+  beforeCreate() {
+    //不可用的状态
+  },
+  //第二个生命周期函数: 数据可用，模板不可用
+  //实际开发中会发起Ajax请求获取数据
+  created() {
+    console.log(this.message);
+    this.show();
+    this.initBookList();
+  },
+};
+</script>
+
+<style lang="less" scoped>
+.test-container {
+  background-color: pink;
+  height: 200px;
+}
+</style>
+```
+
+
+
+
+
+
+
+
+
+## 组件之间的数据共享
+
+![image-20210827151434519](README.assets/image-20210827151434519.png)
+
+
+
+
+
+### 父 --->  子：自定义属性
+
+![image-20210827151553918](README.assets/image-20210827151553918.png)
+
+### 子 ---> 父：自定义事件
+
+![image-20210827152436097](README.assets/image-20210827152436097.png)
+
+### 兄弟：EventBus
+
+![image-20210827153748141](README.assets/image-20210827153748141.png)
+
+![image-20210827153911930](README.assets/image-20210827153911930.png)
+
+![vue 基础](../../../../../../miyufeng/Documents/vue 基础.png)
